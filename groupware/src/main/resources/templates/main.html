@@ -35,21 +35,22 @@
        사용자 이름/아바타/안읽은 채팅 수, 관리자 메뉴 노출 여부, 현재 메뉴
        강조(active) 표시 등 "동적으로 바뀌는 값"만 채워 넣는다.
        ========================================== -->
-	<div class="app-wrapper" id="appWrapper">
+  <div class="app-wrapper" id="appWrapper">
 
-		<!-- 상단 헤더 - 공통 조각(fragments/layout.html) 재사용 -->
-		<header th:replace="~{fragments/layout :: header}"></header>
+	<!-- 상단 헤더 - 공통 조각(fragments/layout.html) 재사용 -->
+			<header th:replace="~{fragments/layout :: header}"></header>
 
-		<!-- 메인 내비게이션 영역 -->
-		<div class="main-body" id="mainBody">
+			<!-- 메인 내비게이션 영역 -->
+					<div class="main-body" id="mainBody">
+            
 
-			<!-- 좌측 사이드바 - 공통 조각(fragments/layout.html) 재사용 -->
-			<aside th:replace="~{fragments/layout :: sidebar}"></aside>
+						<!-- 좌측 사이드바 - 공통 조각(fragments/layout.html) 재사용 -->
+						<aside th:replace="~{fragments/layout :: sidebar}"></aside>
 
-			<!-- 중앙 동적 화면 콘텐츠 영역 -->
-			<main class="view-content">
+      <!-- 중앙 동적 화면 콘텐츠 영역 -->
+      <main class="view-content">
 
-				<!-- ==========================================
+        <!-- ==========================================
              화면: 대시보드 (로그인 후 처음 보이는 홈 화면)
              아래 내용은 js/dashboard.js의 renderDashboard()가 다시 그린다.
              ========================================== -->
