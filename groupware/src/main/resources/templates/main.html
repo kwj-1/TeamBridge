@@ -33,62 +33,14 @@
        ========================================== -->
   <div class="app-wrapper" id="appWrapper">
 
-    <!-- 상단 헤더 -->
-    <header class="header">
-      <div class="header-left">
-        <a href="main.html" class="logo" style="text-decoration:none;">
-          <div class="logo-box"><i class="fa-solid fa-cubes"></i></div>
-          <span style="margin-left: 0.5rem;">GROUPWARE</span>
-        </a>
-      </div>
+	<!-- 상단 헤더 - 공통 조각(fragments/layout.html) 재사용 -->
+			<header th:replace="~{fragments/layout :: header}"></header>
 
-      <div class="header-right">
-        <button class="icon-btn" onclick="navigateTo('chat')" title="실시간 채팅">
-          <i class="fa-solid fa-comment-dots"></i>
-          <span class="badge" id="headerChatBadge">0</span>
-        </button>
-        <div class="user-dropdown" onclick="navigateTo('mypage')">
-          <div class="user-avatar" id="headerAvatar">홍</div>
-          <div class="user-details">
-            <span class="user-name-text" id="headerName">홍길동</span>
-            <span class="user-role-text" id="headerDept">개발팀 사원</span>
-          </div>
-        </div>
-        <button class="icon-btn" onclick="doLogout()" title="로그아웃" style="color: var(--color-danger); border-color: rgba(248,113,113,0.2);">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
-      </div>
-    </header>
+			<!-- 메인 내비게이션 영역 -->
+			<div class="main-body" id="mainBody">
 
-    <!-- 메인 내비게이션 영역 (사이드바 + 콘텐츠를 가로로 배치) -->
-    <div class="main-body" id="mainBody">
-
-      <!-- 좌측 사이드바 -->
-      <aside class="sidebar">
-        <ul class="sidebar-menu">
-          <li class="sidebar-item" id="menu-dashboard"><a href="main.html"><i class="fa-solid fa-chart-line"></i> 대시보드</a></li>
-
-          <li class="sidebar-group-label">업무</li>
-          <li class="sidebar-item sub" id="menu-calendar"><a href="calendar.html"><i class="fa-solid fa-calendar-days"></i> 일정 캘린더</a></li>
-          <li class="sidebar-item sub" id="menu-approval"><a href="approval.html"><i class="fa-solid fa-signature"></i> 전자결재</a></li>
-          <li class="sidebar-item sub" id="menu-notice"><a href="notice.html"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
-          <li class="sidebar-item sub" id="menu-archive"><a href="archive.html"><i class="fa-solid fa-file-shield"></i> 자료실</a></li>
-
-          <li class="sidebar-group-label">조직 · 소통</li>
-          <li class="sidebar-item sub" id="menu-org"><a href="org.html"><i class="fa-solid fa-sitemap"></i> 조직도</a></li>
-          <li class="sidebar-item sub" id="menu-chat"><a href="chat.html"><i class="fa-solid fa-comment-dots"></i> 실시간 채팅</a></li>
-
-          <li class="sidebar-group-label">근태관리</li>
-          <li class="sidebar-item sub" id="menu-attendance"><a href="attendance.html"><i class="fa-solid fa-clock"></i> 출결 현황</a></li>
-
-          <li class="sidebar-item" id="menu-mypage"><a th:href="@{/mypage}"><i class="fa-solid fa-user-gear"></i> 마이페이지</a></li>
-
-          <!-- 관리자 전용 메뉴 - 기본 숨김, 로그인 사용자가 admin이면 JS가 보여준다 -->
-          <li class="sidebar-group-label" id="adminGroupLabel" style="display: none;">관리자</li>
-          <li class="sidebar-item sub" id="menu-admin" style="display: none;"><a href="admin.html"><i class="fa-solid fa-gears"></i> 계정·인사정보 관리</a></li>
-          <li class="sidebar-item sub" id="menu-adminAttendance" style="display: none;"><a href="admin-attendance.html"><i class="fa-solid fa-user-clock"></i> 직원 출결 관리</a></li>
-        </ul>
-      </aside>
+				<!-- 좌측 사이드바 - 공통 조각(fragments/layout.html) 재사용 -->
+				<aside th:replace="~{fragments/layout :: sidebar}"></aside>
 
       <!-- 중앙 동적 화면 콘텐츠 영역 -->
       <main class="view-content">
@@ -98,7 +50,7 @@
              아래 내용은 js/dashboard.js의 renderDashboard()가 다시 그린다.
              ========================================== -->
         <div style="margin-bottom: 1.25rem;">
-          <h2 style="font-size: 1.35rem;">안녕하세요, <span id="dashGreetingName">홍길동 사원</span>님! 👋</h2>
+          <h2 style="font-size: 1.35rem;">안녕하세요, <span id="dashGreetingName" th:if="${employee != null}" th:text="|${employee?.employeeName} · ${employee.positionName}|">홍길동 사원</span>님! 👋</h2>
           <p style="font-size: 0.85rem; color: var(--text-secondary);">오늘도 즐거운 하루 되세요.</p>
         </div>
 
@@ -107,23 +59,23 @@
           <div class="col-3">
             <div class="card profile-card-large">
               <div class="profile-avatar-large" id="dashAvatar">홍</div>
-              <h3 id="dashName">홍길동</h3>
-              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem;" id="dashRoleDept">개발팀 · 사원</p>
+              <h3 th:text="${employee?.employeeName}">이름</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.25rem;" id="dashRoleDept" th:if="${employee != null}" th:text="|${employee.deptName} · ${employee.positionName}|">개발팀 · 사원</p>
 
               <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;" id="btnCommute" onclick="commute()">출근하기</button>
 
               <div class="commute-info-box">
                 <div class="commute-row">
                   <span>상태</span>
-                  <span class="commute-val" id="dashCommuteStatus" style="color: var(--text-muted);">미출근</span>
+                  <span class="commute-val" id="dashCommuteStatus" style="color: var(--text-muted);" th:text="'[' + ${attendance?.attendanceStatus} + ']'">미출근</span>
                 </div>
                 <div class="commute-row">
                   <span>출근 시각</span>
-                  <span class="commute-val" id="dashCheckinTime">-</span>
+                  <span class="commute-val" id="dashCheckinTime" th:text="${attendance?.checkInTime != null ? #temporals.format(attendance.checkInTime, 'HH:mm') : '-'}">-</span>
                 </div>
                 <div class="commute-row">
                   <span>퇴근 시각</span>
-                  <span class="commute-val" id="dashWorkTimer">-</span>
+                  <span class="commute-val" id="dashWorkTimer" th:text="${attendance?.checkOutTime != null ? #temporals.format(attendance.checkOutTime, 'HH:mm') : '-'}">-</span>
                 </div>
               </div>
             </div>
@@ -366,6 +318,6 @@
   <!-- common.js: 상태(state)/인증/헤더·사이드바 등 모든 화면 공통 로직
        dashboard.js: 이 페이지(대시보드)에서만 쓰는 로직 -->
   <script src="js/common.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/Attendance.js"></script>
 </body>
 </html>
