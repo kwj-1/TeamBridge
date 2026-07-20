@@ -27,6 +27,10 @@ public interface EmployeeMapper {
 	// 조직도 왼쪽 트리에 표시할 모든 부서를 조회한다.
 	List<DepartmentDTO> findDepartments();
 
+	// 전자결재 결재선 후보 조회 - 특정 직급 서열(POSITION_RANK: 1=부서장, 2=팀장)의
+	// ACTIVE 직원 전체 (부서 제한 없음 - 기안자가 회사 전체 팀장/부서장 중에서 고름)
+	List<EmployeeDTO> findByPositionRank(@Param("positionRank") int positionRank);
+
 	// 부서 필터에 맞는 ACTIVE 직원만 조직도 표에 표시한다. deptId가 null 이면 전체다.
 	List<EmployeeDTO> findActiveEmployeesByDepartment(@Param("deptId") Integer deptId);
 
