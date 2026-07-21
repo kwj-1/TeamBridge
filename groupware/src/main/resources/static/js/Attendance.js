@@ -169,12 +169,16 @@ function updateButtonUI(status) {
     }
 }
 
+// data.attendanceStatus(그날 지각/정상/연차)가 아니라 data.nextStatus(지금 출근했는지 여부:
+// NONE/WORKING/DONE)를 한글 라벨로 보여줌 - AttendanceService.getCommuteStatusLabel()과 같은 기준
+const COMMUTE_STATUS_LABEL = { NONE: '미출근', WORKING: '근무중', DONE: '퇴근완료' };
+
 function updateAttendanceDisplay(data) {
     const statusEl = document.getElementById('dashCommuteStatus');
     const checkinEl = document.getElementById('dashCheckinTime');
     const timerEl = document.getElementById('dashWorkTimer');
 
-    if (statusEl) statusEl.innerText = `[${data.attendanceStatus}]`;
+    if (statusEl) statusEl.innerText = `[${COMMUTE_STATUS_LABEL[data.nextStatus] || data.nextStatus}]`;
     if (checkinEl) checkinEl.innerText = data.checkInTime;
     if (timerEl) timerEl.innerText = data.checkOutTime;
 }
