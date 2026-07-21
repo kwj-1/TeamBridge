@@ -48,8 +48,6 @@
 		VALUES (#{employeeId}, #{workDate}, 'LEAVE')
 		ON DUPLICATE KEY UPDATE ATTENDANCE_STATUS = 'LEAVE'
 	</insert>
-<<<<<<< HEAD
-=======
 	
 	<!-- 관리자 : 특정 날짜의 전 직원 출결 현황 조회. 그 날짜에 출근 기록이 없는 직원도
 		"미출근" 상태로 표시해야 하므로 ATTENDANCE를 기준이 아니라 EMPLOYEE를 기준으로
@@ -83,5 +81,4 @@
 			CHECK_OUT_TIME = #{checkOutTime},
 			ATTENDANCE_STATUS = #{status}
 	</insert>
->>>>>>> main
 </mapper>

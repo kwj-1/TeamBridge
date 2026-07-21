@@ -24,11 +24,16 @@ public class CalendarService {
     }
 
     /**
-     * 회사(COMPANY) 일정은 관리자만 등록 가능
+     * 회사(COMPANY) 일정은 관리자만, 팀(TEAM) 일정은 관리자는 등록 불가(관리자는 소속 부서가 없음)
      */
     public boolean canCreateEvent(EmployeeDTO employee, String eventCategory) {
+        boolean isAdmin = "ADMIN".equals(employee.getEmployeeRole());
         if ("COMPANY".equals(eventCategory)) {
-            return "ADMIN".equals(employee.getEmployeeRole());
+            return isAdmin;
+        }
+        if ("TEAM".equals(eventCategory)) {
+            // 관리자는 DEPT_ID가 없는 시스템 계정이라 "소속 부서"라는 개념 자체가 없음
+            return !isAdmin;
         }
         return true;
     }
@@ -56,10 +61,16 @@ public class CalendarService {
      * - 개인 일정: 작성자 본인만
      */
     public boolean canModifyEvent(EmployeeDTO employee, CalendarEventDTO event) {
+        boolean isAdmin = "ADMIN".equals(employee.getEmployeeRole());
         if ("COMPANY".equals(event.getEventCategory())) {
-            return "ADMIN".equals(employee.getEmployeeRole());
+            return isAdmin;
         }
         if ("TEAM".equals(event.getEventCategory())) {
+            // 관리자는 소속 부서(DEPT_ID)가 없어 TEAM 일정을 등록할 수 없으므로,
+            // 수정/삭제도 부서 비교 이전에 무조건 차단(canCreateEvent와 동일 원칙)
+            if (isAdmin) {
+                return false;
+            }
             return event.getDeptId() != null && employee.getDeptId() == event.getDeptId();
         }
         return employee.getEmployeeId() == event.getEmployeeId();

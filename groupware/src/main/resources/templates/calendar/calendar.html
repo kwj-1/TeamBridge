@@ -76,7 +76,7 @@
                  여러 날짜에 걸친 일정은 하루씩 끊지 않고, 같은 주(週) 안에서는
                  하나로 이어진 막대(.cal-event-bar)로, 주가 바뀌면 다음 줄에서
                  새 막대로 이어서 그린다. -->
-						<div class="calendar-grid" id="fullCalendarGrid"></div>
+						<div class="cal-month" id="fullCalendarGrid"></div>
 					</div>
 				</div>
 			</main>
@@ -95,7 +95,10 @@
 				<h3 id="calendarModalTitle">새 일정 등록</h3>
 				<button class="icon-btn" id="scheduleModalCloseBtn"><i class="fa-solid fa-xmark"></i></button>
 			</div>
-			<form id="scheduleForm">
+			<!-- th:data-* 3개는 calendar.js가 삭제 버튼 노출 여부를 CalendarService.canModifyEvent()와
+			     동일한 기준으로 판단하기 위해 로그인 사용자 정보를 그대로 내려주는 용도(GlobalModelAdvice의 employee) -->
+			<form id="scheduleForm" th:data-employee-id="${employee.employeeId}"
+				th:data-employee-role="${employee.employeeRole}" th:data-dept-id="${employee.deptId}">
 				<div class="modal-body">
 					<div class="grid-2">
 						<div class="form-group">
@@ -113,10 +116,18 @@
 					</div>
 					<div class="form-group">
 						<label class="form-label" for="scheduleType">일정 구분</label>
+						<!-- TEAM/COMPANY 옵션을 th:if로 아예 안 만들면, 그 값을 못 고르는 사람이
+						     "열람만" 하는 상황(예: 일반 직원이 COMPANY 일정을 클릭해서 봄)에서
+						     scheduleType.value = 'COMPANY'로 지정해도 그 옵션 자체가 DOM에 없어서
+						     드롭다운이 엉뚱한 값(첫번째 옵션인 개인 일정)을 보여주는 문제가 생긴다.
+						     그래서 옵션은 항상 3개 다 만들어두고, "새로 등록할 때 고를 수 없게"만
+						     disabled로 막는다(등록/수정 가능 여부의 최종 차단은 서버가 함) -->
 						<select id="scheduleType" name="eventCategory" class="form-control">
 							<option value="PERSONAL">개인 일정 (본인 캘린더만 노출)</option>
-							<option value="TEAM">팀 일정 (소속 부서원 연동)</option>
-							<option value="COMPANY">회사 일정 (전사 노출)</option>
+							<!-- 관리자는 소속 부서가 없어 팀 일정을 만들 수 없으므로 선택 불가 처리 -->
+							<option value="TEAM" th:disabled="${employee.employeeRole == 'ADMIN'}">팀 일정 (소속 부서원 연동)</option>
+							<!-- 회사 일정은 관리자만 등록 가능하므로 관리자가 아니면 선택 불가 처리 -->
+							<option value="COMPANY" th:disabled="${employee.employeeRole != 'ADMIN'}">회사 일정 (전사 노출)</option>
 						</select>
 					</div>
 				</div>

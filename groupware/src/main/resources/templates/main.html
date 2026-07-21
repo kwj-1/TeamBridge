@@ -147,36 +147,20 @@
 							<div class="table-container">
 								<table class="table">
 									<tbody id="dashNoticeList">
-										<!-- Mock 데이터 (JS 렌더링 시 대체됨) -->
-										<tr class="clickable" onclick="viewNotice(12)">
+										<tr class="clickable" th:each="notice : ${notices}"
+											th:onclick="|viewNotice(${notice.noticeId})|">
 											<td>
 												<div style="display:flex; align-items:center; gap:0.5rem;">
-													<span class="badge badge-muted">일반</span>
-													<span class="notice-link">[필독] 개인정보보호법 개정에 따른 사내 정책 변경 안내</span>
+													<span class="badge badge-muted" th:text="${notice.isPinned} ? '고정' : '일반'">일반</span>
+													<span class="notice-link" th:text="${notice.noticeTitle}">제목</span>
 												</div>
 											</td>
-											<td style="font-size:0.8rem; color:var(--text-muted); text-align:right;">
+											<td style="font-size:0.8rem; color:var(--text-muted); text-align:right;"
+												th:text="${notice.createdAt != null ? #strings.substring(notice.createdAt, 0, 10) : ''}">
 												2026-06-05</td>
 										</tr>
-										<tr class="clickable" onclick="viewNotice(11)">
-											<td>
-												<div style="display:flex; align-items:center; gap:0.5rem;">
-													<span class="badge badge-muted">일반</span>
-													<span class="notice-link">[안내] 사내 카페테리아 여름 메뉴 리뉴얼 공지</span>
-												</div>
-											</td>
-											<td style="font-size:0.8rem; color:var(--text-muted); text-align:right;">
-												2026-06-08</td>
-										</tr>
-										<tr class="clickable" onclick="viewNotice(10)">
-											<td>
-												<div style="display:flex; align-items:center; gap:0.5rem;">
-													<span class="badge badge-muted">일반</span>
-													<span class="notice-link">[채용] 개발팀 경력직 채용 공고 안내 (내부 추천 가능)</span>
-												</div>
-											</td>
-											<td style="font-size:0.8rem; color:var(--text-muted); text-align:right;">
-												2026-06-10</td>
+										<tr th:if="${#lists.isEmpty(notices)}">
+											<td colspan="2" style="text-align:center; color:var(--text-muted); padding:1rem 0;">등록된 공지가 없습니다.</td>
 										</tr>
 									</tbody>
 								</table>
@@ -352,6 +336,7 @@
        dashboard.js: 이 페이지(대시보드)에서만 쓰는 로직 -->
 	<script src="js/common.js"></script>
 	<script src="js/Attendance.js"></script>
+	<script src="js/dashboard.js"></script>
 </body>
 
 </html>
