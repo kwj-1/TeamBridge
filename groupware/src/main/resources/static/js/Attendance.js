@@ -202,4 +202,24 @@ function updateAttendanceDisplay(data) {
     if (statusEl) statusEl.innerText = `[${COMMUTE_STATUS_LABEL[data.nextStatus] || data.nextStatus}]`;
     if (checkinEl) checkinEl.innerText = data.checkInTime;
     if (timerEl) timerEl.innerText = data.checkOutTime;
+
+    // "월간 근태 요약" 카드 - AttendanceController.getAttendanceData()가 이제
+    // presentDays/lateCount/leaveCount/attendanceRate도 같이 응답에 실어보내므로,
+    // 출근/퇴근 버튼을 누른 직후 새로고침 없이 이 카드까지 같이 갱신한다(2026-07-22)
+    const presentEl = document.getElementById('dashPresentDays');
+    const lateCountEl = document.getElementById('dashLateCount');
+    const leaveCountEl = document.getElementById('dashLeaveCount');
+    const rateRingEl = document.getElementById('dashAttendanceRateRing');
+    const rateTextEl = document.getElementById('dashAttendanceRateText');
+
+    if (presentEl && data.presentDays !== undefined) presentEl.innerText = `${data.presentDays}일`;
+    if (lateCountEl && data.lateCount !== undefined) lateCountEl.innerText = `${data.lateCount}회`;
+    if (leaveCountEl && data.leaveCount !== undefined) leaveCountEl.innerText = `${data.leaveCount}일`;
+    if (rateTextEl && data.attendanceRate !== undefined) rateTextEl.innerText = `${data.attendanceRate}%`;
+    // 도넛 차트는 main.html이 처음 그릴 때와 똑같은 conic-gradient 문자열을 JS에서 다시 만들어서
+    // style을 통째로 교체(퍼센트 숫자만 다른 CSS를 서버가 아니라 JS가 직접 조립하는 방식)
+    if (rateRingEl && data.attendanceRate !== undefined) {
+        rateRingEl.style.background =
+            `conic-gradient(var(--color-primary) 0% ${data.attendanceRate}%, var(--bg-tertiary) ${data.attendanceRate}% 100%)`;
+    }
 }

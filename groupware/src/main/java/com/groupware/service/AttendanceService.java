@@ -1,5 +1,6 @@
 package com.groupware.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -118,6 +119,48 @@ public class AttendanceService {
 		summary.put("late", records.stream().filter(a -> "LATE".equals(a.getAttendanceStatus())).count());
 		summary.put("leave", records.stream().filter(a -> "LEAVE".equals(a.getAttendanceStatus())).count());
 		return summary;
+	}
+
+	// 이번 달 1일부터 today까지 중 평일(월~금) 개수. 원래 DashboardService에 private로
+	// 있던 걸 여기로 옮김 - AttendanceController(실시간 갱신)에서도 같은 계산이 필요해져서,
+	// "근태 관련 계산은 AttendanceService에 모은다" 원칙에 맞춰 이동함(2026-07-22).
+	// 공휴일 제외는 아직 안 함 - COMPANY 카테고리 일정 중 뭐가 진짜 공휴일인지 구분할 방법이
+	// 아직 없어서 보류 중(김우주 확인 사항, 나중에 처리 예정).
+	public int countWorkingDaysSoFar(LocalDate today) {
+		int count = 0;
+		LocalDate date = today.withDayOfMonth(1);
+		while (!date.isAfter(today)) { // 1일부터 오늘까지 하루씩 검사
+			boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+			if (!isWeekend) {
+				count++;
+			}
+			date = date.plusDays(1);
+		}
+		return count;
+	}
+
+	// 월간 근태 요약(출근일수/지각/연차/출근율)을 한 번에 계산 - AttendanceController(출근/퇴근
+	// 처리 직후 실시간 갱신용)와 DashboardService(페이지 최초 렌더링용) 둘 다 이 메서드
+	// 하나만 부르면 되도록 통일함. 계산 방식이 나중에 바뀌어도(공휴일 제외 등) 여기 한
+	// 곳만 고치면 실시간/초기렌더 둘 다 같이 반영됨(2026-07-22).
+	public Map<String, Object> getAttendanceSummary(int employeeId, LocalDate today) {
+		Map<String, Long> statusCounts = getMonthlySummary(employeeId, today.getYear(), today.getMonthValue());
+		long normalCount = statusCounts.get("normal");
+		long lateCount = statusCounts.get("late");
+		long leaveCount = statusCounts.get("leave");
+		// "출근일수"는 정상+지각+연차를 전부 "그 날에 대해 근태 기록이 남아있다"는 의미로 합쳐서 센다
+		long presentDays = normalCount + lateCount + leaveCount;
+
+		int workingDays = countWorkingDaysSoFar(today);
+		// workingDays가 0이면(이번 달 1일이 아직 안 지났을 때뿐) 0으로 나누기 에러 방지
+		int attendanceRate = workingDays > 0 ? (int) Math.round(presentDays * 100.0 / workingDays) : 0;
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("presentDays", presentDays);
+		result.put("lateCount", lateCount);
+		result.put("leaveCount", leaveCount);
+		result.put("attendanceRate", attendanceRate);
+		return result;
 	}
 	
 	// 관리자 : 특정 날짜의 전 직원 출결 조회
