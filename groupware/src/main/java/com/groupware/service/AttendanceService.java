@@ -28,14 +28,22 @@ public class AttendanceService {
 		return attendanceMapper.selectTodayAttendance(employeeId, today);
 	}
 
-	// "지금 출근했는지 여부"(NONE 미출근/WORKING 근무중/DONE 퇴근완료) - 그날 지각/정상/연차인지
-	// (ATTENDANCE_STATUS: NORMAL/LATE/LEAVE)와는 다른 개념이라 헷갈리지 않게 별도 메서드로 분리.
-	// AttendanceController가 원래 인라인으로 계산하던 걸 여기로 옮겨서, 대시보드(MainController)도
-	// 같은 기준으로 재사용할 수 있게 함(2026-07-21 김우주 확인 - main.html이 attendanceStatus를
-	// 그대로 보여주던 걸 이걸로 교체)
+	// "지금 출근했는지 여부"(NONE 미출근/WORKING 근무중/DONE 퇴근완료/LEAVE 휴가중) - 그날
+	// 지각/정상/연차인지(ATTENDANCE_STATUS: NORMAL/LATE/LEAVE)와는 다른 개념이라 헷갈리지 않게
+	// 별도 메서드로 분리. AttendanceController가 원래 인라인으로 계산하던 걸 여기로 옮겨서,
+	// 대시보드(MainController)도 같은 기준으로 재사용할 수 있게 함(2026-07-21 김우주 확인 -
+	// main.html이 attendanceStatus를 그대로 보여주던 걸 이걸로 교체).
+	//
+	// LEAVE는 별도 분기로 먼저 처리한다 - 연차 승인 시 자동 생성되는 레코드
+	// (insertLeaveRecord)는 CHECK_IN_TIME/CHECK_OUT_TIME을 둘 다 안 채우고 ATTENDANCE_STATUS만
+	// 'LEAVE'로 넣는데, 이걸 그냥 checkOutTime==null로만 판단하면 "출근도 안 했는데 근무중"으로
+	// 잘못 나온다(2026-07-21 발견된 버그 - checkInTime을 아예 안 보고 있었음).
 	public String getCommuteStatus(AttendanceDTO todayAttendance) {
 		if (todayAttendance == null) {
 			return "NONE";
+		}
+		if ("LEAVE".equals(todayAttendance.getAttendanceStatus())) {
+			return "LEAVE";
 		}
 		return todayAttendance.getCheckOutTime() == null ? "WORKING" : "DONE";
 	}
@@ -43,6 +51,7 @@ public class AttendanceService {
 	// 위 상태 코드를 화면에 보여줄 한글 라벨로 변환(대시보드 "상태" 표시용)
 	public String getCommuteStatusLabel(AttendanceDTO todayAttendance) {
 		switch (getCommuteStatus(todayAttendance)) {
+			case "LEAVE": return "휴가중";
 			case "WORKING": return "근무중";
 			case "DONE": return "퇴근완료";
 			default: return "미출근";
