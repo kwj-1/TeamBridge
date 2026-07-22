@@ -902,6 +902,10 @@
       color: var(--text-muted);
       padding-bottom: 0.35rem;
     }
+    /* 일요일/공휴일=빨강, 토요일=파랑 - calendar.js의 .calendar-day-header.sunday/.saturday와
+       같은 색 기준(2026-07-22) */
+    .mini-cal-day-header.sunday { color: var(--color-danger); }
+    .mini-cal-day-header.saturday { color: var(--color-secondary); }
     .mini-cal-day {
       font-size: 0.75rem;
       padding: 0.35rem 0;
@@ -913,6 +917,10 @@
       color: var(--text-muted);
       opacity: 0.4;
     }
+    /* 일요일/공휴일=빨강, 토요일=파랑. .today보다 앞에 둬서, 오늘이면서 주말/공휴일이어도
+       .today의 흰색 글씨가 우선 적용되게 함(캐스케이드 순서 - 2026-07-22) */
+    .mini-cal-day.sunday { color: var(--color-danger); }
+    .mini-cal-day.saturday { color: var(--color-secondary); }
     .mini-cal-day.today {
       background-color: var(--color-primary);
       color: #fff;
